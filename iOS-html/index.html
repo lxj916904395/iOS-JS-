@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <meta http-equiv="X-UA-Compatible" content="ie=edge">
+                    <title>Document</title>
+                    <script type="text/javascript">
+                        
+                        function scanResult(text) {
+                            document.getElementById("returnValue").value = text;
+                        }
+                    
+                    function showAlert(text){
+                        alert(text)
+                    }
+                    
+                    function scan(){
+                        //向原生端发送方法触发消息，并接受返回值
+                        WebViewJavascriptBridge.callHandler('scan', {'foo': 'bar'}, function(response) {
+                                                            alert('扫描结果:' + response);
+                                                            document.getElementById("returnValue").value = response;
+                                                            })
+                    }
+                    
+                    function shake(){
+                        //向原生端发送方法触发消息，并接受返回值
+                        WebViewJavascriptBridge.callHandler('shake', {'foo': 'bar'}, function(response) {
+                                                          
+                                                            document.getElementById("returnValue").value = response;
+                                                            })
+                    }
+                    
+                    function setupWebViewJavascriptBridge(callback) {
+                        if (window.WebViewJavascriptBridge) { return callback(WebViewJavascriptBridge); }
+                        if (window.WVJBCallbacks) { return window.WVJBCallbacks.push(callback); }
+                        window.WVJBCallbacks = [callback];
+                        var WVJBIframe = document.createElement('iframe');
+                        WVJBIframe.style.display = 'none';
+                        WVJBIframe.src = 'wvjbscheme://__BRIDGE_LOADED__';
+                        document.documentElement.appendChild(WVJBIframe);
+                        setTimeout(function() { document.documentElement.removeChild(WVJBIframe) }, 0)
+                    }
+                    
+                    setupWebViewJavascriptBridge(function(bridge) {
+                                                 bridge.registerHandler('testJSFunction', function(data, responseCallback) {
+                                                                        alert('JS方法被调用:'+data);
+                                                                        responseCallback('js执行过了');
+                                                                        })
+                                                 })
+                                                 
+                        </script>
+                    </head>
+    <body>
+        <input type="button" value="扫一扫"  onclick="scan()">
+            
+            <input type="button" value="摇一摇"  onclick="shake()">
+                
+                <h3>图片上传</h3>
+                <input type="file" value="选择图片"/>
+                
+                <h3>这是回调结果展示区</h3>
+                <textarea id ="returnValue" type="value" rows="5" cols="40">
+                </textarea>
+                
+                </body>
+   
+</html>
